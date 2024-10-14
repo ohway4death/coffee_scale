@@ -23,7 +23,6 @@ int timeSec = 0;
 int timeMin = 0;
 char timeString[6];
 
-
 void IRAM_ATTR onTimer()
 {
   counter++;
@@ -31,10 +30,11 @@ void IRAM_ATTR onTimer()
   Serial.printf("timeSec = %d, timeMin = %d, counter = %d \n", timeSec, timeMin, counter);
 }
 
-void vibration(){
+void vibration()
+{
   power.SetLDOEnable(3, true);
   delay(500);
-  power.SetLDOEnable(3,false);
+  power.SetLDOEnable(3, false);
 }
 
 void setup()
@@ -105,13 +105,27 @@ void loop()
   }
   else if (M5.BtnB.wasPressed())
   {
-    btnCFlg = false;
-    counter = 0;
-    timerAlarmEnable(timer);
+    if (timerAlarmEnabled(timer) && (counter != 0))
+    {
+      timerStop(timer);
+      counter = 0;
+    }
+    else if(timerAlarmEnabled(timer) && (counter == 0))
+    {
+      timerStart(timer);
+    }
+    else
+    {
+      counter = 0;
+      timerAlarmEnable(timer);
+      timerStart(timer);
+    }
+
     vibration();
   }
   else if (M5.BtnC.wasPressed())
   {
+    Serial.println(timerAlarmEnabled(timer));
     if (timerStarted(timer))
     {
       timerStop(timer);
